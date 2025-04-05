@@ -16,7 +16,12 @@ Yes.
 
  - Request (Up) Streaming
  - Response (Down) Streaming
- - Bidi (Only half duplex, request streaming. Full duplex to be implemented yet)
+ - Bidi (Only half duplex, request streaming. Full duplex to be implemented yet)  
+   - As of now, since both request/response streaming are supported separately,  
+   if you need a full duplex method, you could split it in two methods, eg.:  
+   `service.upstreamVideo()` `service.downstreamVideo()`  
+   both request messages would need a common `UUID` parameter  
+   to identify the current process at both the server and client.
 
 ## HTTP2 Support
 
