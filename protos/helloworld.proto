@@ -1,0 +1,27 @@
+
+syntax = "proto3";
+package helloworld;
+
+//
+
+message HelloRequest {
+  string username = 1;
+  int32 userNo = 2;
+  bool isUserEnabled = 3;
+}
+
+message HelloReply {
+  string replyMessage = 1;
+  int32 replyNo = 2;
+  bool isReplyValid = 3;
+}
+
+service HelloWorld {
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+
+  rpc SayHelloStreamHello (stream HelloRequest) returns (HelloReply) {}
+
+  rpc SayHelloStreamReply (HelloRequest) returns (stream HelloReply) {}
+
+  rpc SayHelloBidi (stream HelloRequest) returns (stream HelloReply) {}
+}
