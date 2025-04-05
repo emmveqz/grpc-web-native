@@ -1,6 +1,6 @@
 # gRPC Web Native
 
-Toolchain to generate the client Javascript (Typescript) code for the browser from your `.proto` files, using [protobuf.js](https://github.com/protobufjs/protobuf.js) as a core code generator, and [@grpc/grpc-js](https://github.com/grpc/grpc-js) as the server implementation to follow.
+Toolchain to generate the client Javascript (Typescript) code for the browser from your `.proto` files, using [protobuf.js](https://github.com/protobufjs/protobuf.js) as a core code generator, and [grpc-node](https://github.com/grpc/grpc-node) (npm pkg @grpc/grpc-js) as the server implementation to follow.
 
 ## Proxy
 
@@ -22,7 +22,7 @@ Yes.
 
 Yes. Using the browser native `fetch` instead of `xhr` or `websockets`.
 
-No need to wait for `WebTransport` to be implemented and standardized in safari. Which also needs to be implemented to @grpc/grpc-js (server).
+No need to wait for `WebTransport` to be implemented and standardized in safari. Which also needs to be implemented to npm pkg @grpc/grpc-js (server).
 
 ## Abort Support
 
