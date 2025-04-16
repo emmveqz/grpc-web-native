@@ -16,13 +16,21 @@ export default function (
   responseType: string,
   callbackName: string,
 ) {
+  const requestTypeFull = requestType.includes('.')
+    ? requestType
+    : `${namespaceName}.I${requestType}`
+
+  const responseTypeFull = responseType.includes('.')
+    ? responseType
+    : `${namespaceName}.${responseType}`
+
   return `
   ${lcMethodName}<T extends ${namespaceName}.${serviceName}.${callbackName}|undefined>(
     callback: T,
-    request: ${namespaceName}.I${requestType},
+    request: ${requestTypeFull},
     signal?: AbortSignal,
-  ): T extends undefined ? Promise<${namespaceName}.${responseType}> : void {
-    type IResult = T extends undefined ? Promise<${namespaceName}.${responseType}> : void
+  ): T extends undefined ? Promise<${responseTypeFull}> : void {
+    type IResult = T extends undefined ? Promise<${responseTypeFull}> : void
 
     attachSignal(service.${lcMethodName}, signal)
 

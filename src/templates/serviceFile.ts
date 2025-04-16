@@ -27,14 +27,14 @@ import {
 
 //
 
-${hasMethodHandlers ? `
 type IMethodNames =
-${Object.keys(methodHandlers).map((methodName) => `  | '${methodName}'`).join(`\n`)}` : ''
+${hasMethodHandlers ? `
+${Object.keys(methodHandlers).map((methodName) => `  | '${methodName}'`).join(`\n`)}` : '  | string'
 }
 
-${hasRequestStreamableMethodHandlers ? `
 type IRequestStreamableMethodNames =
-${Object.keys(requestStreamableMethodHandlers).map((methodName) => `  | '${methodName}'`).join(`\n`)}` : ''
+${hasRequestStreamableMethodHandlers ? `
+${Object.keys(requestStreamableMethodHandlers).map((methodName) => `  | '${methodName}'`).join(`\n`)}` : '  | string'
 }
 
 //

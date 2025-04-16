@@ -7,10 +7,13 @@ using [protobuf.js](https://github.com/protobufjs/protobuf.js) as a core code ge
 
 ```sh
 npm run transpile-generator
-npm run gen-web-client-protos <file_pattern_to_protos> <output_folder>
+npm run gen-web-client-protos <protos_source> <output_folder>
 
-# e.g.
-npm run gen-web-client-protos ./protos/*.proto ./src/generated
+# e.g. for patterns: (mind the quote)
+npm run gen-web-client-protos './protos/*.proto' ./src/generated
+
+# e.g. for single file:
+npm run gen-web-client-protos ./protos/helloworld.proto ./src/generated
 ```
 
 See the [Example.tsx](./example/Example.tsx) for an example on how to use the generated code.
