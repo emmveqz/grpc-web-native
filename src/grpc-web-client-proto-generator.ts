@@ -174,7 +174,7 @@ glob(protosSource, (err, matches) => {
 
       // Generate a separate file per service.
       console.log('service:', service.name)
-      console.table(service.methods)
+      console.table( service.methods.map(({ generatedHandler, ...method }) => method) )
 
       const methodWrappers = service.methods.map((method) => {
         const lcMethodName = method.name.charAt(0).toLowerCase() + method.name.slice(1)
