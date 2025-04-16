@@ -13,6 +13,8 @@ npm run gen-web-client-protos <file_pattern_to_protos> <output_folder>
 npm run gen-web-client-protos ./protos/*.proto ./src/generated
 ```
 
+See the [Example.tsx](./example/Example.tsx) for an example on how to use the generated code.
+
 ## Proxy
 
 None, hence the `native` suffix in the project's name.
