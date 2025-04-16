@@ -160,7 +160,7 @@ glob(protosSource, (err, matches) => {
     })
 
   for (const namespace of namespaces) {
-    if (!namespace) {
+    if (!namespace?.services.length) {
       continue
     }
 
