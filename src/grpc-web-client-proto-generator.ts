@@ -73,9 +73,8 @@ glob(protosSource, (err, matches) => {
 
   type IMethod = {
     callbackName: string,
-    generatedHandler?: string,
+    generatedHandler: string,
     isRequestStreamable?: boolean,
-    isResponseStreamable?: boolean,
     name: string,
     requestType: string,
     responseType: string,
@@ -117,10 +116,31 @@ glob(protosSource, (err, matches) => {
                 responseType,
               } = typeObj.methods[methodName]
 
+              let methodWrapper: (namespaceName: string, serviceName: string, methodName: string) => string
+
+              if (!requestStream && !responseStream) {
+                methodWrapper = genUnaryRequestUnaryResponse
+              }
+              else if (!requestStream && responseStream) {
+                methodWrapper = genUnaryRequestStreamResponse
+              }
+              else if (requestStream && !responseStream) {
+                methodWrapper = genStreamRequestUnaryResponse
+              }
+              else {
+                methodWrapper = genStreamRequestStreamResponse
+              }
+
+              const generatedHandler = methodWrapper(
+                namespace.name,
+                typeName,
+                name,
+              )
+
               return {
                 callbackName: `${name}Callback`,
+                generatedHandler,
                 isRequestStreamable: requestStream,
-                isResponseStreamable: responseStream,
                 name,
                 requestType,
                 responseType,
@@ -168,29 +188,6 @@ glob(protosSource, (err, matches) => {
           method.callbackName,
         )
       })
-
-      let methodWrapper: (namespaceName: string, serviceName: string, methodName: string) => string
-
-      for (const i in service.methods) {
-        if (!service.methods[i].isRequestStreamable && !service.methods[i].isResponseStreamable) {
-          methodWrapper = genUnaryRequestUnaryResponse
-        }
-        else if (!service.methods[i].isRequestStreamable && service.methods[i].isResponseStreamable) {
-          methodWrapper = genUnaryRequestStreamResponse
-        }
-        else if (service.methods[i].isRequestStreamable && !service.methods[i].isResponseStreamable) {
-          methodWrapper = genStreamRequestUnaryResponse
-        }
-        else {
-          methodWrapper = genStreamRequestStreamResponse
-        }
-
-        service.methods[i].generatedHandler = methodWrapper!(
-          namespace.name,
-          service.name,
-          service.methods[i].name,
-        )
-      }
 
       const methodHandlers = service.methods
         .filter((method) => !method.isRequestStreamable)
