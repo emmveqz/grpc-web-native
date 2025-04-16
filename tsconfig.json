@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "esnext",
+    "module": "CommonJS",
     "allowJs": false,
     "isolatedModules": true,
     "noEmit": false,
@@ -21,8 +21,5 @@
   ],
   "files": [
     "./src/grpc-web-client-proto-generator.ts"
-  ],
-  "include": [
-    "./src"
   ]
 }

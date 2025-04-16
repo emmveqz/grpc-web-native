@@ -5,7 +5,6 @@
   "main": "dist/grpc-web-client-proto-generator.js",
   "scripts": {
     "gen-web-client-protos": "node ./dist/grpc-web-client-proto-generator.js",
-    "gen-protos": "npx pbjs -t static-module -w commonjs -o ./example/generated/protos.js ./protos/*.proto  &&  npx pbts -o ./example/generated/protos.d.ts ./example/generated/protos.js",
     "transpile-generator": "npx tsc --build ./tsconfig.json"
   },
   "author": "Emmanuel V. Lopez",
@@ -22,6 +21,7 @@
     "registry": "https://npm.pkg.github.com"
   },
   "dependencies": {
+    "protobufjs": "^7.4.0",
     "protobufjs-cli": "^1.1.3"
   },
   "devDependencies": {

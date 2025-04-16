@@ -3,6 +3,16 @@
 Toolchain to generate the client Javascript (Typescript) code for the browser from your `.proto` files,  
 using [protobuf.js](https://github.com/protobufjs/protobuf.js) as a core code generator, and [grpc-node](https://github.com/grpc/grpc-node) (npm pkg @grpc/grpc-js) as the server implementation to follow.
 
+## Usage
+
+```sh
+npm run transpile-generator
+npm run gen-web-client-protos <file_pattern_to_protos> <output_folder>
+
+# e.g.
+npm run gen-web-client-protos ./protos/*.proto ./src/generated
+```
+
 ## Proxy
 
 None, hence the `native` suffix in the project's name.
