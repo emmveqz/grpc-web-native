@@ -25,9 +25,9 @@ export default function (
     : `${namespaceName}.${responseType}`
 
   return `
-  ${lcMethodName}<T extends ${namespaceName}.${serviceName}.${callbackName}|undefined>(
-    callback: T,
+  ${lcMethodName}<T extends ${namespaceName}.${serviceName}.${callbackName}|undefined = undefined>(
     request: ${requestTypeFull},
+    callback?: T,
     signal?: AbortSignal,
   ): T extends undefined ? Promise<${responseTypeFull}> : void {
     type IResult = T extends undefined ? Promise<${responseTypeFull}> : void
