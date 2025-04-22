@@ -5,7 +5,11 @@
   "main": "dist/grpc-web-client-proto-generator.js",
   "scripts": {
     "gen-web-client-protos": "node ./dist/grpc-web-client-proto-generator.js",
+    "prepack": "npm run transpile-generator",
     "transpile-generator": "npx tsc --build ./tsconfig.json"
+  },
+  "bin": {
+    "gen-web-client-protos": "dist/grpc-web-client-proto-generator.js"
   },
   "author": "Emmanuel V. Lopez",
   "license": "ISC",
@@ -25,6 +29,6 @@
     "protobufjs-cli": "^1.1.3"
   },
   "devDependencies": {
-    "typescript": "4.9.5"
+    "typescript": "^4.9.5"
   }
 }
