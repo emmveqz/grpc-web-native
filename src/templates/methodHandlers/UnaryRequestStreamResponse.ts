@@ -14,7 +14,7 @@ export default function (
       .arrayBuffer()
       .then( (arrayBuffer) => globalThis.fetch(\`\${host}/${namespaceName}.${serviceName}/${methodName}\`, {
         body: new Uint8Array(arrayBuffer),
-        method: "POST",
+        method: 'POST',
         headers: REQUEST_HEADERS,
         signal,
       }) )

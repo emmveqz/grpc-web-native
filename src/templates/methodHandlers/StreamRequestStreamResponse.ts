@@ -10,7 +10,7 @@ export default function (
    */
   ${methodName}(host, requestStream, callback, errorHandler, signal) {
     if (!supportsRequestStreams) {
-      errorHandler( new Error("request-streaming is not supported") )
+      errorHandler( new Error('request-streaming is not supported') )
       return
     }
 
@@ -24,8 +24,8 @@ export default function (
          * Same that uses two simultaneous \`fetch\` (half duplex each), resulting in a full duplex.
          * We would need to implement it in the gRPC server application as well (npm pkg @grpc/grpc-js).
          */
-        ["duplex" as "method"]: "half",
-        method: "POST",
+        ["duplex" as "referrer"]: 'half',
+        method: 'POST',
         headers: REQUEST_HEADERS,
         signal,
       })

@@ -7,15 +7,15 @@ export default function (
   return `
   ${methodName}(host, requestStream, callback, errorHandler, signal) {
     if (!supportsRequestStreams) {
-      errorHandler( new Error("request-streaming is not supported") )
+      errorHandler( new Error('request-streaming is not supported') )
       return
     }
 
     globalThis
       .fetch(\`\${host}/${namespaceName}.${serviceName}/${methodName}\`, {
         body: requestStream,
-        ["duplex" as "method"]: "half",
-        method: "POST",
+        ["duplex" as "referrer"]: 'half',
+        method: 'POST',
         headers: REQUEST_HEADERS,
         signal,
       })
