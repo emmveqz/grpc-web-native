@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Native gRPC client for web browser",
   "main": "dist/grpc-web-client-proto-generator.js",
+  "types": "dist/grpc-web-client-proto-generator.d.ts",
   "scripts": {
     "gen-web-client-protos": "node ./dist/grpc-web-client-proto-generator.js",
     "prepack": "npm run transpile-generator",

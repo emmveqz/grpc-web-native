@@ -8,6 +8,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
+    "declaration": true,
     "outDir": "./dist",
     "esModuleInterop": true,
     "experimentalDecorators": true,
