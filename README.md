@@ -3,17 +3,31 @@
 Toolchain to generate the client Javascript (Typescript) code for the browser from your `.proto` files,  
 using [protobuf.js](https://github.com/protobufjs/protobuf.js) as a core code generator, and [grpc-node](https://github.com/grpc/grpc-node) (npm pkg @grpc/grpc-js) as the server implementation to follow.
 
+## Installation
+
+You'll need to specify the npm package registry in your `.npmrc` file, like so:
+
+```.ini
+@emmveqz:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_AUTHTOKEN
+```
+
+Then:
+
+```sh
+npm install @emmveqz/grpc-web-native
+```
+
 ## Usage
 
 ```sh
-npm run transpile-generator
-npm run gen-web-client-protos <protos_source> <output_folder>
+npx gen-web-client-protos <protos_source> <output_folder>
 
 # e.g. for patterns: (mind the quote)
-npm run gen-web-client-protos './protos/*.proto' ./src/generated
+npx gen-web-client-protos './protos/*.proto' ./src/generated
 
 # e.g. for single file:
-npm run gen-web-client-protos ./protos/helloworld.proto ./src/generated
+npx gen-web-client-protos ./protos/helloworld.proto ./src/generated
 ```
 
 See the [Example.tsx](./example/Example.tsx) for an example on how to use the generated code.
