@@ -56,7 +56,7 @@ const supportsRequestStreams = (() => {
   const hasContentType = new Request('', {
     body: new ReadableStream(),
     method: 'POST',
-    get ['duplex' as 'method']() {
+    get ['duplex' as 'referrer']() {
       duplexAccessed = true
       return 'half'
     },
