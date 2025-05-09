@@ -1,7 +1,7 @@
 
 import * as fs from "fs"
 import * as path from "path"
-import * as grpc from "@grpc/grpc-js"
+import * as grpc from "@emmveqz/grpc-node-web"
 import {
   helloworldProto,
   HelloWorldService,
@@ -20,7 +20,9 @@ const sslCreds = grpc.ServerCredentials.createSsl(caRoot, [{
 }])
 
 const PORT = process.env.MYVAR_WEB_SERVER_PORT || 8001
-const grpcServer = new grpc.Server()
+const grpcServer = new grpc.Server({
+  allowedOrigin: process.env.MYVAR_WEB_SERVER_ALLOWED_ORIGIN || undefined,
+})
 
 grpcServer.addService(helloworldProto.helloworld.HelloWorld.service, new HelloWorldService())
 

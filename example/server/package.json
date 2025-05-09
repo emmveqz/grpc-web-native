@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "PORT=${npm_config_port} BROWSER=none node ./dist/index.js",
     "build": "npx tsc --build ./tsconfig.json  &&  cp -R ../../protos ./dist/",
-    "gen-protos-ts": "npx proto-loader-gen-types --defaults --keepCase --grpcLib=@grpc/grpc-js --outDir=./src/types/protos ../../protos/*.proto"
+    "gen-protos-ts": "npx proto-loader-gen-types --defaults --keepCase --grpcLib=@emmveqz/grpc-node-web --outDir=./src/types/protos ../../protos/*.proto"
   },
   "author": "Emmanuel V. Lopez",
   "license": "ISC",
@@ -15,7 +15,7 @@
     "typescript": "^5.3.2"
   },
   "dependencies": {
-    "@grpc/grpc-js": "^1.12.2",
+    "@emmveqz/grpc-node-web": "^1.0.0",
     "@grpc/proto-loader": "^0.7.13"
   }
 }

@@ -1,5 +1,5 @@
 
-import * as grpc from "@grpc/grpc-js"
+import * as grpc from "@emmveqz/grpc-node-web"
 import type {
   sendUnaryData,
   ServerDuplexStream,
@@ -7,7 +7,7 @@ import type {
   ServerUnaryCall,
   ServerWritableStream,
   UntypedHandleCall,
-} from "@grpc/grpc-js"
+} from "@emmveqz/grpc-node-web"
 import * as protoLoader from "@grpc/proto-loader"
 import * as path from "path"
 import type {

@@ -1,4 +1,4 @@
-import type * as grpc from '@grpc/grpc-js';
+import type * as grpc from '@emmveqz/grpc-node-web';
 import type { MessageTypeDefinition } from '@grpc/proto-loader';
 
 import type { HelloWorldClient as _helloworld_HelloWorldClient, HelloWorldDefinition as _helloworld_HelloWorldDefinition } from './helloworld/HelloWorld';

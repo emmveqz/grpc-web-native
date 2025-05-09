@@ -1,6 +1,6 @@
 // Original file: src/protos/helloworld.proto
 
-import type * as grpc from '@grpc/grpc-js'
+import type * as grpc from '@emmveqz/grpc-node-web'
 import type { MethodDefinition } from '@grpc/proto-loader'
 import type { HelloReply as _helloworld_HelloReply, HelloReply__Output as _helloworld_HelloReply__Output } from '../helloworld/HelloReply';
 import type { HelloRequest as _helloworld_HelloRequest, HelloRequest__Output as _helloworld_HelloRequest__Output } from '../helloworld/HelloRequest';
