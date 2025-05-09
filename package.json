@@ -23,8 +23,19 @@
     "url": "https://github.com/emmveqz/grpc-web-native/issues"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://registry.npmjs.org"
   },
+  "keywords": [
+    "grpc",
+    "grpc-web",
+    "grpc-client",
+    "grpc-stream",
+    "grpc-streaming",
+    "grpc-js",
+    "grpc-stream-client",
+    "protobuf",
+    "protocol-buffers"
+  ],
   "dependencies": {
     "protobufjs": "^7.4.0",
     "protobufjs-cli": "^1.1.3"

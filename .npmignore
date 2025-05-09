@@ -1,4 +1,7 @@
 /.git/
 /.github/
 /.gitignore
+/.npmrc
+/node_modules
 /tsconfig.json
+/package-lock.json

@@ -1,18 +1,9 @@
 # gRPC Web Native
 
 Toolchain to generate the client Javascript (Typescript) code for the browser from your `.proto` files,  
-using [protobuf.js](https://github.com/protobufjs/protobuf.js) as a core code generator, and [grpc-node-web](https://github.com/emmveqz/grpc-node-web) as the server implementation to follow.
+using [protobufjs](https://www.npmjs.com/package/protobufjs) as a core code generator, and [grpc-node-web](https://www.npmjs.com/package/@emmveqz/grpc-node-web) as the server implementation to follow.
 
 ## Installation
-
-You'll need to specify the npm package registry in your `.npmrc` file, like so:
-
-```.ini
-@emmveqz:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=YOUR_GITHUB_AUTHTOKEN
-```
-
-Then:
 
 ```sh
 npm install @emmveqz/grpc-web-native
@@ -73,7 +64,7 @@ Yes. Use the browser native `AbortController` to control/abort the http call.
 
 ## CORS
 
-While using a NodeJS gRPC server implemention ([grpc-node-web](https://github.com/emmveqz/grpc-node-web)),  
+While using a NodeJS gRPC server implemention ([grpc-node-web](https://www.npmjs.com/package/@emmveqz/grpc-node-web)),  
 such as the one used at [example/server/src/index.ts](./example/server/src/index.ts) you'll set your web browser origin, like so:
 
 ```typescript
