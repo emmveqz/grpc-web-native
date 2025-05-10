@@ -5,6 +5,8 @@ using [protobufjs](https://www.npmjs.com/package/protobufjs) as a core code gene
 
 ## Installation
 
+npm package: [@emmveqz/grpc-web-native](https://www.npmjs.com/package/@emmveqz/grpc-web-native)
+
 ```sh
 npm install @emmveqz/grpc-web-native
 ```
@@ -64,8 +66,8 @@ Yes. Use the browser native `AbortController` to control/abort the http call.
 
 ## CORS
 
-While using a NodeJS gRPC server implemention ([grpc-node-web](https://www.npmjs.com/package/@emmveqz/grpc-node-web)),  
-such as the one used at [example/server/src/index.ts](./example/server/src/index.ts) you'll set your web browser origin, like so:
+While using a NodeJS gRPC server implementation ([grpc-node-web](https://www.npmjs.com/package/@emmveqz/grpc-node-web)),  
+such as the one used at [example/server/src/index.ts](./example/server/src/index.ts) you'll need to set your web browser origin, like so:
 
 ```typescript
 import * as grpc from '@emmveqz/grpc-node-web'
