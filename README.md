@@ -67,7 +67,7 @@ Yes. Use the browser native `AbortController` to control/abort the http call.
 ## CORS
 
 While using a NodeJS gRPC server implementation ([grpc-node-web](https://www.npmjs.com/package/@emmveqz/grpc-node-web)),  
-such as the one used at [example/server/src/index.ts](./example/server/src/index.ts) you'll need to set your web browser origin, like so:
+such as the one used at [example/server/src/index.ts](./example/server/src/index.ts) you will need to set your web browser origin, like so:
 
 ```typescript
 import * as grpc from '@emmveqz/grpc-node-web'
