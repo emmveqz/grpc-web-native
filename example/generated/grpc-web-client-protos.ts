@@ -294,13 +294,13 @@ export const CreateHelloWorldService = (host?: string) => {
         if (streamableRequest!.controller) {
           streamableRequest!.controller.enqueue(requestData2)
 
-          if (signal) {
-            // Let's hope we're not overriding a custom `onabort()`
-            signal.onabort = () => {
-              streamableRequest!.controller?.close()
-              streamableRequest!.ended = true
-            }
-          }
+          signal?.addEventListener("abort", (ev) => {
+            streamableRequest!.controller?.close()
+            streamableRequest!.ended = true
+          }, {
+            once: true,
+            passive: true,
+          })
     
           return
         }
