@@ -82,5 +82,3 @@ const grpcServer = new grpc.Server({
 
 For gRPC server implementations in other languages, you will need to find the equivalent code,  
 or just setup a Proxy to defeat CORS (with a configuration to support HTTP2).  
-The gRPC server will still need to be started with SSL certs in order to work with HTTP2.  
-(I'd think localhost is not allowed)
