@@ -43,7 +43,7 @@ pbjs.main([
   '-t',
   'static-module',
   '-w',
-  'commonjs',
+  (String(argv[2]).toLowerCase() === '--import_style=esm' ? 'es6' : 'commonjs'),
   '-o',
   targetJS,
   protosSource,

@@ -21,6 +21,9 @@ npx gen-web-client-protos './protos/*.proto' ./src/generated
 
 # e.g. for single file:
 npx gen-web-client-protos ./protos/helloworld.proto ./src/generated
+
+# e.g. for ES6+ import style: (default is commonJS)
+npx gen-web-client-protos './protos/*.proto' ./src/generated --import_style=esm
 ```
 
 See the [Example.tsx](./example/Example.tsx) for an example on how to use the generated code.
