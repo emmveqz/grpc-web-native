@@ -32,6 +32,8 @@ See the [Example.tsx](./example/Example.tsx) for an example on how to use the ge
 
 None, hence the `native` suffix in the project's name.
 
+***
+
 ## Binary Support
 
 Yes. Again, no proxy needed. Just using the original `Content-Type: application/grpc+proto`.  
@@ -51,6 +53,8 @@ Yes.
    both request messages would need a common `UUID` parameter  
    to identify the current process at both the server and client.
 
+***
+
 ## HTTP2 Support
 
 Yes. Using the browser native `fetch` instead of `xhr` or `websockets`.  
@@ -67,6 +71,8 @@ Yes. Use the browser native `AbortController` to control/abort the http call.
  - Typescript support
  - No need to install plugins (such as `protoc`)
 
+***
+
 ## CORS
 
 While using a NodeJS gRPC server implementation ([grpc-node-web](https://www.npmjs.com/package/@emmveqz/grpc-node-web)),  
@@ -82,3 +88,23 @@ const grpcServer = new grpc.Server({
 
 For gRPC server implementations in other languages, you will need to find the equivalent code,  
 or just setup a Proxy to defeat CORS (with a configuration to support HTTP2).  
+
+***
+
+## About gRPC trailers
+
+This client is built on universal web standards — `fetch`, `ReadableStream`, `Uint8Array` — which is
+what lets it speak native gRPC to a gRPC server with no translating proxy, and what lets the same
+client run in a browser and on Node 20+. One consequence is worth stating plainly.
+
+**HTTP/2 trailers are not read.** In the gRPC specification a call's final `grpc-status` and
+`grpc-message` arrive as trailing headers, after the data stream has closed. **The Fetch standard
+defines no way to read them** — not in browsers, and not in Node, whose `fetch` implements the same
+standard.
+
+For most applications this changes nothing: a successful call yields its data, and a transport
+failure surfaces as a rejected promise or a stream error you handle with ordinary `try`/`catch`.
+
+**If your service depends on trailing metadata**, append it to the end of your payload stream on the
+server and read it as the final chunk on the client. It is a standard pattern, it costs you one
+message field, and it keeps both ends free of trailer handling.
