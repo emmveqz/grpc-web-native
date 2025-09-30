@@ -27,6 +27,11 @@ import {
 
 //
 
+type IStatusFailure = {
+  code: number,
+  message: string,
+}
+
 type IMethodNames =
 ${hasMethodHandlers ? `
 ${Object.keys(methodHandlers).map((methodName) => `  | '${methodName}'`).join(`\n`)}` : '  | string'
@@ -38,6 +43,15 @@ ${Object.keys(requestStreamableMethodHandlers).map((methodName) => `  | '${metho
 }
 
 //
+
+/**
+ * \`"0"\` is \`OK\`. Note a normal gRPC reply does **not** carry this header at all — status travels in
+ * trailers — so \`null\` is the ordinary success path and must not be treated as a failure.
+ */
+const GRPC_STATUS_OK = "0"
+
+/** \`UNAVAILABLE\`. See the mapping note in \`readStatusFailure\`. */
+const GRPC_STATUS_UNAVAILABLE = 14
 
 const REQUEST_HEADERS = {
   "accept-encoding": 'identity',
@@ -64,6 +78,77 @@ const supportsRequestStreams = (() => {
 
   return duplexAccessed && !hasContentType
 })()
+
+/**
+ * Status as far as \`fetch\` can see it — \`null\` when nothing is visibly wrong.
+ *
+ * Deliberately **two** checks, because they catch different things and only one of them knows what
+ * gRPC is.
+ */
+const readStatusFailure = (resp: Response): IStatusFailure|null => {
+  if (!resp.ok) {
+    return {
+      code: GRPC_STATUS_UNAVAILABLE,
+      message: \`HTTP \${resp.status}\${resp.statusText ? \` \${resp.statusText}\` : ""}\`,
+    }
+  }
+
+  const status = resp.headers.get("grpc-status")
+
+  if (status !== null && status !== GRPC_STATUS_OK) {
+    return {
+      code: Number(status),
+      message: readGrpcMessage(resp) || \`grpc-status \${status}\`,
+    }
+  }
+
+  return null
+}
+
+const UNREADABLE_STATUS_HINT = "the server sent a gRPC status this client could not read"
+  + " — cross-origin this needs \`Access-Control-Expose-Headers: grpc-status, grpc-message\`"
+
+export class GrpcStatusUnreadableError extends Error {
+  public readonly code = "GRPC_STATUS_UNREADABLE"
+
+  constructor(message = UNREADABLE_STATUS_HINT) {
+    super(message)
+    this.name = "GrpcStatusUnreadableError"
+    Object.setPrototypeOf(this, GrpcStatusUnreadableError.prototype)
+  }
+}
+
+/**
+ * **A gRPC-level failure the client could actually see.** Same two-channel recognition as
+ * \`GrpcStatusUnreadableError\` and for the same reason — a consumer should be able to branch on the
+ * status code without parsing a message string.
+ */
+export class GrpcCallError extends Error {
+  public readonly code = "GRPC_CALL_FAILED"
+
+  constructor(public readonly status: IStatusFailure) {
+    super(\`\${status.code}: \${status.message}\`)
+    this.name = "GrpcCallError"
+    Object.setPrototypeOf(this, GrpcCallError.prototype)
+  }
+}
+
+/**
+ * \`grpc-message\` is **percent-encoded** per the specification, and a malformed value makes
+ * \`decodeURIComponent\` throw — which must not turn a server-side error into a client-side crash,
+ * since this runs on the failure path. Raw is a worse message than decoded and a far better outcome
+ * than an exception.
+ */
+const readGrpcMessage = (resp: Response): string => {
+  const raw = resp.headers.get("grpc-message") || ""
+
+  try {
+    return decodeURIComponent(raw)
+  }
+  catch {
+    return raw
+  }
+}
 
 /**
  * Have in mind when calling one of these methods multiple times,
@@ -115,7 +200,9 @@ export const Create${serviceName}Service = (host?: string) => {
     const { signal } = (method || {}) as unknown as { signal?: AbortSignal }
 
     const errorHandler = (err?: Error) => {
-      callback( new Error(err?.message || \`error while calling ${serviceName}.\${method.name}\`) )
+      callback(err instanceof Error && err.message
+        ? err
+        : new Error(\`error while calling ${serviceName}.\${method.name}\`) )
     }
 
     if (methodHandlers[method?.name as IMethodNames]) {

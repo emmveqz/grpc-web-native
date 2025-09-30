@@ -18,8 +18,23 @@ export default function (
         headers: REQUEST_HEADERS,
         signal,
       }) )
-      .then((resp) => resp.arrayBuffer())
+      .then((resp) => {
+        const failure = readStatusFailure(resp)
+
+        if (failure) {
+          throw new GrpcCallError(failure)
+        }
+
+        return resp.arrayBuffer()
+      })
       .then((buff) => {
+        // A real message is never shorter than its 5-byte frame header, so nothing
+        // at all means the reply was trailers-only and its status was hidden from us.
+        if (!buff.byteLength) {
+          errorHandler(new GrpcStatusUnreadableError())
+          return
+        }
+
         // Due to the "identity" encoding.
         callback( null, new Uint8Array(buff).subarray(5) )
       })

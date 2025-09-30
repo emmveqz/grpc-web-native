@@ -19,11 +19,16 @@ export default function (
         signal,
       }) )
       .then((resp) => {
+        const failure = readStatusFailure(resp)
+
+        if (failure) {
+          throw new GrpcCallError(failure)
+        }
+
         const reader = resp.body?.getReader();
 
         if (!reader) {
-          callback(null)
-          return
+          throw new Error("response carried no readable body")
         }
 
         (async () => {
