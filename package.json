@@ -1,6 +1,6 @@
 {
   "name": "@emmveqz/grpc-web-native",
-  "version": "1.1.6",
+  "version": "1.2.0",
   "description": "Native gRPC client for web browser",
   "main": "dist/grpc-web-client-proto-generator.js",
   "types": "dist/grpc-web-client-proto-generator.d.ts",
