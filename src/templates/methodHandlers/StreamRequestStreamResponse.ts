@@ -42,42 +42,7 @@ export default function (
           throw new Error("response carried no readable body")
         }
 
-        (async () => {
-          let startIdx: number
-          let subArray: Uint8Array|undefined
-          let msgLength: number
-
-          let {
-            done,
-            value,
-          } = await reader.read()
-
-          while (true) {
-            startIdx = 5
-            msgLength = value?.[4] || 0
-
-            while (true) {
-              subArray = value?.subarray(startIdx, startIdx + msgLength)
-              callback(null, subArray?.length ? subArray : null)
-
-              if (!subArray?.length) {
-                break
-              }
-
-              startIdx = startIdx + msgLength + 5
-              msgLength = value?.[startIdx - 1] || 0
-            }
-
-            if (done) {
-              break
-            }
-
-            ({
-              done,
-              value,
-            } = await reader.read())
-          }
-        })()
+        readMessageStream(reader, callback, errorHandler, signal)
       })
       .catch(errorHandler)
   }`

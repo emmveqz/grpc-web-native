@@ -29,8 +29,8 @@ export default function (
     request: ${requestTypeFull},
     callback?: T,
     signal?: AbortSignal,
-  ): T extends undefined ? Promise<${responseTypeFull}> : void {
-    type IResult = T extends undefined ? Promise<${responseTypeFull}> : void
+  ): T extends undefined ? Promise<${responseTypeFull}|Error> : void {
+    type IResult = T extends undefined ? Promise<${responseTypeFull}|Error> : void
 
     attachSignal(service.${lcMethodName}, signal)
 

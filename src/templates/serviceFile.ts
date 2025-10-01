@@ -10,6 +10,7 @@ export default function (
   requestStreamableMethodHandlers: {
     [methodName: string]: string,
   },
+  responseStreamableMethodNames: string[],
 ): string|Error {
   const hasMethodHandlers = Object.keys(methodHandlers).length
   const hasRequestStreamableMethodHandlers = Object.keys(requestStreamableMethodHandlers).length
@@ -53,10 +54,18 @@ const GRPC_STATUS_OK = "0"
 /** \`UNAVAILABLE\`. See the mapping note in \`readStatusFailure\`. */
 const GRPC_STATUS_UNAVAILABLE = 14
 
+/**
+ * \`grpc-accept-encoding\` advertises only \`identity\` because this client does not decompress
+ * responses: a server told \`deflate\` or \`gzip\` were fine could send compressed messages (flag
+ * \`0x01\`) that would reach protobufjs still compressed.
+ *
+ * In the long run, \`deflate,gzip\` may be added back behind an opt-in generator flag, together with
+ * decompression via \`DecompressionStream\`.
+ */
 const REQUEST_HEADERS = {
   "accept-encoding": 'identity',
   "content-type": 'application/grpc',
-  "grpc-accept-encoding": 'identity,deflate,gzip',
+  "grpc-accept-encoding": 'identity',
   "grpc-encoding": 'identity',
   "te": 'trailers',
 }
@@ -151,6 +160,107 @@ const readGrpcMessage = (resp: Response): string => {
 }
 
 /**
+ * A gRPC message on the wire: one flags byte (\`0\`, since we send "identity", i.e. uncompressed),
+ * then the payload length as a **4-byte big-endian** integer, then the payload itself.
+ */
+const frameMessage = (payload: Uint8Array): Uint8Array<ArrayBuffer> => {
+  const framed = new Uint8Array(5 + payload.byteLength)
+
+  // \`DataView\` writes big-endian by default, which is what the gRPC spec requires.
+  new DataView(framed.buffer).setUint32(1, payload.byteLength)
+  framed.set(payload, 5)
+
+  return framed
+}
+
+/**
+ * Response bodies arrive in chunks that do **not** line up with gRPC messages: one chunk can carry
+ * several messages, and one message can span several chunks. This buffers the bytes and hands over
+ * whole messages only.
+ */
+const createMessageReader = (onMessage: (payload: Uint8Array) => void) => {
+  let pending = new Uint8Array(0)
+
+  return (chunk: Uint8Array<ArrayBuffer>) => {
+    if (pending.byteLength) {
+      const merged = new Uint8Array(pending.byteLength + chunk.byteLength)
+
+      merged.set(pending)
+      merged.set(chunk, pending.byteLength)
+      pending = merged
+    }
+    else {
+      pending = chunk
+    }
+
+    while (pending.byteLength >= 5) {
+      const length = new DataView(pending.buffer, pending.byteOffset + 1, 4).getUint32(0)
+
+      if (pending.byteLength < 5 + length) {
+        // The rest of this message is still on its way.
+        break
+      }
+
+      onMessage(pending.subarray(5, 5 + length))
+      pending = pending.subarray(5 + length)
+    }
+  }
+}
+
+/**
+ * The single message of a unary response, read by its declared length rather than "everything after
+ * the header", so nothing that may follow it ends up inside the protobuf payload.
+ */
+const readUnaryMessage = (buff: ArrayBuffer): Uint8Array => {
+  const length = new DataView(buff).getUint32(1)
+
+  return new Uint8Array(buff, 5, Math.min(length, buff.byteLength - 5))
+}
+
+/**
+ * Reads a streamed response to its end: each whole message goes to \`callback\`, then a single
+ * \`null\`, which is how protobufjs is told the stream ended (it calls \`end(true)\` on the service).
+ *
+ * The loop runs detached from the promise chain that started it, so it must catch its own failures:
+ * a connection dropped mid-stream reaches \`errorHandler\` instead of becoming an unhandled rejection,
+ * which on Node would terminate the process. An abort the caller asked for is not reported.
+ */
+const readMessageStream = async (
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  callback: (error: Error|null, response?: Uint8Array|null) => void,
+  errorHandler: (err?: Error) => void,
+  signal?: AbortSignal,
+): Promise<void> => {
+  const push = createMessageReader((payload) => callback(null, payload))
+
+  try {
+    while (true) {
+      const {
+        done,
+        value,
+      } = await reader.read()
+
+      if (value?.byteLength) {
+        push(value as Uint8Array<ArrayBuffer>)
+      }
+
+      if (done) {
+        break
+      }
+    }
+
+    callback(null, null)
+  }
+  catch (err) {
+    if (signal?.aborted) {
+      return
+    }
+
+    errorHandler(err instanceof Error ? err : new Error(String(err)))
+  }
+}
+
+/**
  * Have in mind when calling one of these methods multiple times,
  *
  * only the \`callback\` passed the first time will be fired once the response(s) is/are sent.
@@ -236,27 +346,12 @@ export const Create${serviceName}Service = (host?: string) => {
       streamableRequests[method.name as IRequestStreamableMethodNames] = streamableRequest
     }
 
-    new Blob([
-      // Due to the "identity" encoding.
-      new Uint8Array([0, 0, 0, 0, requestData.byteLength]),
-      requestData,
-    ])
-      .arrayBuffer()
-      .then((arrayBuffer) => {
+    Promise.resolve(frameMessage(requestData))
+      .then((requestData2) => {
         streamableRequest!.pending = false
-        const requestData2 = new Uint8Array(arrayBuffer)
 
         if (streamableRequest!.controller) {
           streamableRequest!.controller.enqueue(requestData2)
-
-          signal?.addEventListener("abort", (ev) => {
-            streamableRequest!.controller?.close()
-            streamableRequest!.ended = true
-          }, {
-            once: true,
-            passive: true,
-          })
-    
           return
         }
 
@@ -265,6 +360,21 @@ export const Create${serviceName}Service = (host?: string) => {
             controller.enqueue(requestData2)
             streamableRequest!.controller = controller
           },
+        })
+
+        // Registered once, when the request stream is created, rather than once per queued chunk.
+        signal?.addEventListener("abort", () => {
+          streamableRequest!.ended = true
+
+          try {
+            streamableRequest!.controller?.close()
+          }
+          catch {
+            // An aborted fetch may already have cancelled the stream; nothing left to close.
+          }
+        }, {
+          once: true,
+          passive: true,
         })
 
         requestStreamableMethodHandlers[method.name as IRequestStreamableMethodNames](
@@ -302,10 +412,12 @@ export const Create${serviceName}Service = (host?: string) => {
     end(endedByRPC?: boolean) {
       return service.end(endedByRPC)
     },
-    on(evt: string, fn: (...args: any[]) => void, ctx?: any) {
+    on<TEvt extends "data" | "end" | "error" | "status" | "metadata">(evt: TEvt, fn: TEvt extends "data"
+      ? (data: Record<string, unknown>, method: "${responseStreamableMethodNames.join('" | "')}") => void
+      : (...args: any[]) => void, ctx?: any) {
       return service.on(evt, fn, ctx)
     },
-    off(evt?: string, fn?: (...args: any[]) => void) {
+    off(evt?: "data" | "end" | "error" | "status" | "metadata", fn?: (...args: any[]) => void) {
       return service.off(evt, fn)
     },
 

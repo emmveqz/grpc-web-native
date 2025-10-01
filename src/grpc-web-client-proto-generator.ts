@@ -76,6 +76,7 @@ glob(protosSource, (err, matches) => {
     callbackName: string,
     generatedHandler: string,
     isRequestStreamable?: boolean,
+    isResponseStreamable?: boolean,
     name: string,
     requestType: string,
     responseType: string,
@@ -142,6 +143,7 @@ glob(protosSource, (err, matches) => {
                 callbackName: `${name}Callback`,
                 generatedHandler,
                 isRequestStreamable: requestStream,
+                isResponseStreamable: responseStream,
                 name,
                 requestType,
                 responseType,
@@ -204,6 +206,10 @@ glob(protosSource, (err, matches) => {
           [method.name]: method.generatedHandler!,
         }), {} as Record<string, string>)
 
+      const responseStreamableMethodNames = service.methods
+        .filter((method) => method.isResponseStreamable)
+        .map((method) => method.name.charAt(0).toLowerCase() + method.name.slice(1))
+
       const serviceFile = genServiceFile(
         `../${targetModuleName}`,
         namespace.name,
@@ -211,6 +217,7 @@ glob(protosSource, (err, matches) => {
         methodWrappers,
         methodHandlers,
         requestStreamableMethodHandlers,
+        responseStreamableMethodNames,
       )
 
       if (serviceFile instanceof Error) {

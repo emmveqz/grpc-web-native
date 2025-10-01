@@ -5,7 +5,10 @@ import React, {
 } from "react"
 import {
   CreateHelloWorldService,
+  GrpcCallError,
+  GrpcStatusUnreadableError,
 } from "./generated/grpc-web-client-protos"
+import type { helloworld } from "./generated/protos"
 
 //
 
@@ -20,11 +23,21 @@ export const Example: FC = () => {
       const service = CreateHelloWorldService()
       const abortController = new globalThis.AbortController()
 
-      const reply = await service.sayHello(undefined, {
+      const reply = await service.sayHello({
         isUserEnabled: true,
         username: "foo",
         userNo: 123456789,
-      }, abortController.signal)
+      }, undefined, abortController.signal)
+
+      if (reply instanceof GrpcStatusUnreadableError) {
+        return console.log("grpcService.sayHello() returned an empty message with a status this library cannot read")
+      }
+      if (reply instanceof GrpcCallError) {
+        return console.log(`grpcService.sayHello() returned error ${JSON.stringify(reply.status)}`)
+      }
+      if (reply instanceof Error) {
+        return console.log(`grpcService.sayHello() returned error: ${reply.message}`)
+      }
 
       console.log("sayHello().reply", reply)
   }, [
@@ -38,11 +51,11 @@ export const Example: FC = () => {
       console.log("service.on(data)", resp, method)
     })
 
-    const reply = await service.sayHelloStreamReply(undefined, {
+    const reply = await service.sayHelloStreamReply({
       isUserEnabled: true,
       username: "foo",
       userNo: 123456789,
-    }, abortController.signal)
+    }, undefined, abortController.signal)
 
     console.log("sayHelloStreamReply().reply", reply)
   }, [
@@ -52,24 +65,24 @@ export const Example: FC = () => {
     const service = CreateHelloWorldService()
     const abortController = new globalThis.AbortController()
 
-    service.sayHelloStreamHello((err, reply) => {
-      // This callback will be called.
-      console.log("sayHelloStreamHello().response1(err, reply)", err, reply)
-    }, {
+    service.sayHelloStreamHello<helloworld.HelloWorld.SayHelloStreamHelloCallback>({
       isUserEnabled: true,
       username: "foo1",
       userNo: 123454321,
+    }, (err, reply) => {
+      // This callback will be called.
+      console.log("sayHelloStreamHello().response1(err, reply)", err, reply)
     }, abortController.signal)
 
     await Sleep(12000)
 
-    service.sayHelloStreamHello((err, reply) => {
-      // This callback will NOT be called.
-      console.log("sayHelloStreamHello().response2(err, reply)", err, reply)
-    }, {
+    service.sayHelloStreamHello<helloworld.HelloWorld.SayHelloStreamHelloCallback>({
       isUserEnabled: true,
       username: "foo2",
       userNo: 123454321,
+    }, (err, reply) => {
+      // This callback will NOT be called.
+      console.log("sayHelloStreamHello().response2(err, reply)", err, reply)
     }, abortController.signal)
 
     await Sleep(12000)
@@ -82,24 +95,24 @@ export const Example: FC = () => {
     const service = CreateHelloWorldService()
     const abortController = new globalThis.AbortController()
 
-    service.sayHelloBidi((err, reply) => {
-      // This callback will be called.
-      console.log("sayHelloBidi().response1(err, reply)", err, reply)
-    }, {
+    service.sayHelloBidi<helloworld.HelloWorld.SayHelloBidiCallback>({
       isUserEnabled: true,
       username: "foo1",
       userNo: 123454321,
+    }, (err, reply) => {
+      // This callback will be called.
+      console.log("sayHelloBidi().response1(err, reply)", err, reply)
     }, abortController.signal)
 
     await Sleep(12000)
 
-    service.sayHelloBidi((err, reply) => {
-      // This callback will NOT be called.
-      console.log("sayHelloBidi().response2(err, reply)", err, reply)
-    }, {
+    service.sayHelloBidi<helloworld.HelloWorld.SayHelloBidiCallback>({
       isUserEnabled: true,
       username: "foo2",
       userNo: 123454321,
+    }, (err, reply) => {
+      // This callback will NOT be called.
+      console.log("sayHelloBidi().response2(err, reply)", err, reply)
     }, abortController.signal)
 
     await Sleep(12000)

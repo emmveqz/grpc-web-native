@@ -32,12 +32,10 @@ export default function (
         // A real message is never shorter than its 5-byte frame header, so nothing
         // at all means the reply was trailers-only and its status was hidden from us.
         if (!buff.byteLength) {
-          errorHandler(new GrpcStatusUnreadableError())
-          return
+          throw new GrpcStatusUnreadableError()
         }
 
-        // Due to the "identity" encoding.
-        callback( null, new Uint8Array(buff).subarray(5) )
+        callback( null, readUnaryMessage(buff) )
       })
       .catch(errorHandler)
   }`
